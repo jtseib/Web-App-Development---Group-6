@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="hero-card">
+    <h1>Train smarter. Track progress. Book sessions.</h1>
+    <p class="muted">
+      FitTrack helps gym members track workouts and progress while trainers manage plans and schedules.
+    </p>
+
+    <div class="hero-actions">
+      {% if user.is_authenticated %}
+        <a class="btn" href="#">Go to Dashboard</a>
+      {% else %}
+        <!-- OPTION A: leave as # until login URL exists -->
+        <a class="btn" href="#">Login</a>
+
+        <!-- OPTION B: use this ONLY if you set up Django auth URLs -->
+        {# <a class="btn" href="{% url 'login' %}">Login</a> #}
+
+        <a class="btn btn-outline" href="#">Create Account</a>
+      {% endif %}
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-num">2</div>
+        <div class="stat-label">User Types</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">4+</div>
+        <div class="stat-label">Core Pages</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">✓</div>
+        <div class="stat-label">Sprint Ready</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="grid">
+  <div class="card">
+    <h2>For Clients</h2>
+    <ul>
+      <li>Create an account & update profile</li>
+      <li>View assigned workouts</li>
+      <li>Log progress (reps/weight/time)</li>
+      <li>Book training sessions</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>For Trainers/Admin</h2>
+    <ul>
+      <li>Create workout plans</li>
+      <li>Manage time slots</li>
+      <li>Prevent double-booking</li>
+      <li>View member progress</li>
+    </ul>
+  </div>
+</section>
+{% endblock %}

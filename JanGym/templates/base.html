@@ -1,0 +1,57 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}FitTrack{% endblock %}</title>
+
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+
+<body>
+
+<header class="site-header">
+    <div class="container header-row">
+
+        <h1 class="logo">
+            <a href="{% url 'index' %}">FitTrack</a>
+        </h1>
+
+        <nav class="nav">
+            <a href="{% url 'index' %}">Home</a>
+            <a href="#">Training</a>
+            <a href="#">FAQ</a>
+        </nav>
+
+    </div>
+</header>
+
+
+<main class="container">
+
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="message">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% block content %}
+    {% endblock %}
+
+</main>
+
+
+<footer class="site-footer">
+    <div class="container footer-row">
+        <p>© {% now "Y" %} FitTrack</p>
+        <p class="muted">Gym Management Web Application</p>
+    </div>
+</footer>
+
+
+</body>
+</html>
