@@ -10,3 +10,8 @@ def trainers(request):
 
 def workouts(request):
     return render(request, 'workouts.html')
+def client_profile(request):
+    return render(request, "client_profile.html")
+
+def dashboard(request):
+    return render(request, "dashboard.html")

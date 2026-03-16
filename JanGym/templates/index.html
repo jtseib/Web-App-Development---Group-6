@@ -15,7 +15,7 @@
         <a class="btn" href="#">Go to Dashboard</a>
       {% else %}
         <!-- OPTION A: leave as # until login URL exists -->
-        <a class="btn" href="#">Login</a>
+        <a class="btn" href="{% url 'dashboard' %}">Login</a>
 
         <!-- OPTION B: use this ONLY if you set up Django auth URLs -->
         {# <a class="btn" href="{% url 'login' %}">Login</a> #}
