@@ -25,6 +25,20 @@
             <a href="{% url 'client_profile' %}">Profile</a>
             <a href="#">Training</a>
             <a href="#">FAQ</a>
+            <ul class="nav navbar-nav ml-auto">
+            {% if user.is_authenticated %}
+               <li>
+                  <form action="{% url 'logout' %}" method="post">
+                     {% csrf_token %}
+                     <button type="submit">Log out</button>
+                  </form>
+               </li>
+            {% else %}
+                <li><a class="nav-link" href="{% url 'login' %}"><span class="glyphicon glyphicon-log-in"></span>Login</a>
+                </li>
+            {% endif %}
+    </ul>
+
         </nav>
 
     </div>
