@@ -1,24 +1,8 @@
+from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse # Used to generate URLs by reversing the URL patterns
 import uuid
-class User(models.Model):
-    """Model representing a USER."""
-    user_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, help_text='User ID')
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    email = models.EmailField(max_length=100, null=True, blank=True)
-    ROLE_CHOICES = [
-        ('trainer', 'Trainer'),
-        ('member', 'Member'),
-        ('employee', 'Employee'),
-        ('admin', 'Admin'),
-    ]
-    role = models.CharField(max_length=100, choices=ROLE_CHOICES, null=True, blank=True)
 
-    class Meta:
-        ordering = ['last_name', 'first_name']
-    def __str__(self):
-        return f'{self.last_name}, {self.first_name}, {self.user_id}'
 
 class Trainer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
@@ -55,6 +39,10 @@ class GymHours(models.Model):
     close_time = models.TimeField(null=True, blank=True)
     is_closed = models.BooleanField(default=False)
     reason = models.CharField(max_length=100, blank=True)
+
+    class Meta:
+        verbose_name = "Gym Hours"
+        verbose_name_plural = "Gym Hours"
 
     def __str__(self):
         return f"{self.date} - {'Closed' if self.is_closed else 'Open'}"
@@ -115,6 +103,10 @@ class WorkoutInstance(models.Model):
 class FAQ(models.Model):
     question = models.CharField(max_length=200)
     answer = models.TextField(blank=True)
+
+    class Meta:
+        verbose_name = "FAQ"
+        verbose_name_plural = "FAQs"
 
     def __str__(self):
         return f'{self.question} - {self.answer}'
