@@ -1,5 +1,28 @@
+# PyCharm / IDE files
+.idea/
+
+# Virtual environment
+.env/
+venv/
+
+# Python
 __pycache__/
 *.pyc
+
+# Django
 db.sqlite3
-.idea/
-.env
+*.log
+*.pot
+local_settings.py
+
+# Migrations (development only)
+**/migrations/**
+!**/migrations
+!**/migrations/__init__.py
+
+# Static files
+staticfiles
+**/static/admin/
+
+# Other
+chromedriver
