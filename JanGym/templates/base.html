@@ -1,12 +1,11 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<a class="logo" href="{% url 'index' %}">FitTrack</a>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}FitTrack{% endblock %}</title>
-
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 
@@ -23,27 +22,27 @@
             <a href="{% url 'index' %}">Home</a>
             <a href="{% url 'dashboard' %}">Dashboard</a>
             <a href="{% url 'client_profile' %}">Profile</a>
-            <a href="#">Training</a>
+            <a href="{% url 'workouts' %}">Training</a>
             <a href="#">FAQ</a>
-            <ul class="nav navbar-nav ml-auto">
-            {% if user.is_authenticated %}
-               <li>
-                  <form action="{% url 'logout' %}" method="post">
-                     {% csrf_token %}
-                     <button type="submit">Log out</button>
-                  </form>
-               </li>
-            {% else %}
-                <li><a class="nav-link" href="{% url 'login' %}"><span class="glyphicon glyphicon-log-in"></span>Login</a>
-                </li>
-            {% endif %}
-    </ul>
 
+            <ul class="nav navbar-nav ml-auto">
+                {% if user.is_authenticated %}
+                    <li>
+                        <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit">Log out</button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li>
+                        <a class="nav-link" href="{% url 'login' %}">Login</a>
+                    </li>
+                {% endif %}
+            </ul>
         </nav>
 
     </div>
 </header>
-
 
 <main class="container">
 
@@ -60,14 +59,12 @@
 
 </main>
 
-
 <footer class="site-footer">
     <div class="container footer-row">
         <p>© {% now "Y" %} FitTrack</p>
         <p class="muted">Gym Management Web Application</p>
     </div>
 </footer>
-
 
 </body>
 </html>
