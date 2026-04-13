@@ -1,8 +1,18 @@
 {% extends "base.html" %}
 
-{% block title %}Client Profile{% endblock %}
+{% block title %}Profile{% endblock %}
 
 {% block content %}
 <h1>Client Profile</h1>
-<p>This page will show the client’s profile information.</p>
+
+<div class="card">
+    <p><strong>Name:</strong> Demo User</p>
+    <p><strong>Email:</strong> demo@email.com</p>
+    <p><strong>Goal:</strong> Build strength</p>
+</div>
+
+<div class="card">
+    <h2>Progress</h2>
+    <p>Track your workouts and improvements here.</p>
+</div>
 {% endblock %}
