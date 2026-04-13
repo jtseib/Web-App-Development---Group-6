@@ -1,6 +1,5 @@
 from django.contrib import admin
 from .models import  GymHours, WorkoutPlan, Exercise, TimeSlot, WorkoutLog, WorkoutInstance, FAQ, TrainingProgram
-# Register your models here.
 admin.site.register(GymHours)
 admin.site.register(WorkoutPlan)
 admin.site.register(Exercise)
