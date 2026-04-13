@@ -20,3 +20,19 @@ def client_profile(request):
 
 def dashboard(request):
     return render(request, "dashboard.html")
+def client_sessions(request):
+    return render(request, 'client_sessions.html')
+def cancel_session(request):
+    return render(request, 'cancel_session.html')
+
+def reschedule_session(request):
+    return render(request, 'reschedule_session.html')
+from django.shortcuts import render
+
+
+def cancel_session(request):
+    return render(request, 'cancel_session.html')
+
+
+def reschedule_session(request):
+    return render(request, 'reschedule_session.html')

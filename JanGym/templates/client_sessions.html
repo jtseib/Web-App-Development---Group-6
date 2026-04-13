@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}My Sessions{% endblock %}
+
+{% block content %}
+
+<h1>My Training Sessions</h1>
+
+<div class="grid">
+
+  <div class="card">
+    <h2>Upcoming Sessions</h2>
+    <ul>
+      <li>Monday - 6:00 PM with Coach Trevor</li>
+      <li>Wednesday - 5:30 PM with Coach Trevor</li>
+    </ul>
+
+    <a class="btn" href="{% url 'cancel_session' %}">Cancel</a>
+    <a class="btn btn-outline" href="{% url 'reschedule_session' %}">Reschedule</a>
+  </div>
+
+  <div class="card">
+    <h2>Past Sessions</h2>
+    <ul>
+      <li>Last Friday - Completed</li>
+      <li>Last Monday - Completed</li>
+    </ul>
+  </div>
+
+</div>
+
+{% endblock %}
