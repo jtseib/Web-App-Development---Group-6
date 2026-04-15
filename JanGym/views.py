@@ -1,14 +1,15 @@
 import calendar
 from datetime import date, time
+from django.contrib import messages
 
 from django.views import View
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, CreateView, UpdateView, DetailView
 
-from .forms import GymHoursForm
-from JanGym.models import GymHours
+from .forms import GymHoursForm, WorkoutLogForm, ClientProfileForm
+from JanGym.models import GymHours, WorkoutPlan, Exercise, WorkoutLog
 
 
 def index(request):
@@ -22,13 +23,44 @@ def trainers(request):
 
 @login_required
 def workouts(request):
-    return render(request, 'workouts.html')
+    workout_plans = WorkoutPlan.objects.filter(member=request.user).prefetch_related('exercise_set')
+    workout_logs = WorkoutLog.objects.filter(member=request.user).select_related('exercise').order_by('-date')
 
+    context = {
+        'workout_plans': workout_plans,
+        'workout_logs': workout_logs,
+    }
+    return render(request, 'workouts.html', context)
+@login_required
+def log_workout_progress(request):
+    assigned_exercises = Exercise.objects.filter(plan__member=request.user)
 
+    if request.method == 'POST':
+        form = WorkoutLogForm(request.POST)
+        form.fields['exercise'].queryset = assigned_exercises
+
+        if form.is_valid():
+            workout_log = form.save(commit=False)
+            workout_log.member = request.user
+            workout_log.save()
+            return redirect('workouts')
+    else:
+        form = WorkoutLogForm()
+        form.fields['exercise'].queryset = assigned_exercises
+
+    return render(request, 'log_workout_progress.html', {'form': form})
 @login_required
 def client_profile(request):
-    return render(request, 'client_profile.html')
+    if request.method == 'POST':
+        form = ClientProfileForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Information saved successfully!")
+            return redirect('client_profile')
+    else:
+        form = ClientProfileForm(instance=request.user)
 
+    return render(request, 'client_profile.html', {'form': form})
 
 def dashboard(request):
     return render(request, "dashboard.html")

@@ -3,14 +3,78 @@
 {% block title %}Workouts{% endblock %}
 
 {% block content %}
-<h1>Workouts</h1>
+<h1>My Assigned Workouts</h1>
 
-<div class="card">
-    <h2>Your Workout Plan</h2>
-    <ul>
-        <li>Bench Press - 3 sets</li>
-        <li>Squats - 3 sets</li>
-        <li>Deadlifts - 3 sets</li>
-    </ul>
+<p>
+    <a href="{% url 'log_workout_progress' %}">
+        <button type="button">Log Workout Progress</button>
+    </a>
+</p>
+
+{% if workout_plans %}
+    {% for plan in workout_plans %}
+        <div class="card" style="margin-bottom: 20px; padding: 15px;">
+            <h2>{{ plan.title }}</h2>
+            <p><strong>Trainer:</strong> {{ plan.trainer.username }}</p>
+
+            {% if plan.notes %}
+                <p><strong>Notes:</strong> {{ plan.notes }}</p>
+            {% endif %}
+
+            <h3>Exercises</h3>
+            {% if plan.exercise_set.all %}
+                <ul>
+                    {% for exercise in plan.exercise_set.all %}
+                        <li>
+                            <strong>{{ exercise.name }}</strong>
+                            {% if exercise.reps %}
+                                - Reps: {{ exercise.reps }}
+                            {% endif %}
+                            {% if exercise.weight %}
+                                - Weight: {{ exercise.weight }} lbs
+                            {% endif %}
+                            {% if exercise.duration %}
+                                - Duration: {{ exercise.duration }} min
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No exercises have been added to this workout plan yet.</p>
+            {% endif %}
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="card" style="padding: 15px; margin-bottom: 20px;">
+        <p>You do not have any assigned workout plans yet.</p>
+    </div>
+{% endif %}
+
+<div class="card" style="padding: 15px; margin-top: 20px;">
+    <h2>My Workout Progress</h2>
+
+    {% if workout_logs %}
+        <ul>
+            {% for log in workout_logs %}
+                <li style="margin-bottom: 10px;">
+                    <strong>{{ log.exercise.name }}</strong>
+                    {% if log.date %}
+                        - Date: {{ log.date }}
+                    {% endif %}
+                    {% if log.reps %}
+                        - Reps: {{ log.reps }}
+                    {% endif %}
+                    {% if log.weight %}
+                        - Weight: {{ log.weight }} lbs
+                    {% endif %}
+                    {% if log.duration %}
+                        - Duration: {{ log.duration }} min
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No workout progress has been logged yet.</p>
+    {% endif %}
 </div>
 {% endblock %}
