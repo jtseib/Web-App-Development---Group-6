@@ -1,0 +1,28 @@
+from django import forms
+from .models import GymHours
+
+class GymHoursForm(forms.ModelForm):
+    class Meta:
+        model = GymHours
+        fields = ['date', 'open_time', 'close_time', 'is_closed', 'reason']
+
+        widgets = {
+            'date': forms.DateInput(attrs={
+                'type': 'date',
+                'class': 'form-control'
+            }),
+
+            'open_time': forms.TimeInput(attrs={
+                'type': 'time',
+                'class': 'form-control'
+            }),
+
+            'close_time': forms.TimeInput(attrs={
+                'type': 'time',
+                'class': 'form-control'
+            }),
+
+            'reason': forms.TextInput(attrs={
+                'class': 'form-control'
+            })
+        }

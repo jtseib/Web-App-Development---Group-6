@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <h2>Edit Gym Hours</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="{% url 'calendar_month' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const isClosed = document.getElementById("id_is_closed");
+            const openTime = document.getElementById("id_open_time");
+            const closeTime = document.getElementById("id_close_time");
+
+            function toggleFields() {
+                const closed = isClosed.checked;
+
+                openTime.disabled = closed;
+                closeTime.disabled = closed;
+
+                openTime.style.opacity = closed ? "0.5" : "1";
+                closeTime.style.opacity = closed ? "0.5" : "1";
+            }
+
+            isClosed.addEventListener("change", toggleFields);
+            toggleFields(); // run on page load
+        });
+    </script>
+
+{% endblock %}

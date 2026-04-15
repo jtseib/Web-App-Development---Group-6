@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% load static %}
+{% load dict_extras %}
+
+{% block content %}
+
+<h2 class="mb-4">Gym Hours – {{ month_name }} {{ year }}</h2>
+
+<!-- Normal Hours (static, not editable) -->
+<div class="card p-3 mb-4" style="background:#1e1e1e; color:white;">
+    <h4>Normal Hours</h4>
+    <p><strong>Open:</strong> 05:00AM</p>
+    <p><strong>Close:</strong> 11:00PM</p>
+</div>
+
+<div class="calendar-month">
+    <div class="calendar-grid">
+
+        <div class="day-name">Mon</div>
+        <div class="day-name">Tue</div>
+        <div class="day-name">Wed</div>
+        <div class="day-name">Thu</div>
+        <div class="day-name">Fri</div>
+        <div class="day-name">Sat</div>
+        <div class="day-name">Sun</div>
+
+        {% for week in month_days %}
+            {% for day in week %}
+
+                {% with hour=hours_by_date|dict_get:day %}
+                <div class="calendar-cell
+                    {% if day.month != month %}other-month{% endif %}
+                    {% if hour and hour.is_closed %} closed-day {% endif %}
+                ">
+
+                    <div class="date-number">{{ day.day }}</div>
+
+                    {% if hour %}
+                        {% if hour.is_closed %}
+                            <p class="closed">Closed</p>
+                            {% if hour.reason %}
+                                <p class="reason">{{ hour.reason }}</p>
+                            {% endif %}
+                        {% else %}
+                            <p class="open">Open: {{ hour.open_time }}</p>
+                            <p class="close">Close: {{ hour.close_time }}</p>
+                        {% endif %}
+
+                        {% if perms.jangym.change_gymhours %}
+                            <a href="{% url 'update_hours' hour.pk %}" class="btn btn-warning btn-sm mt-2">
+                                Edit
+                            </a>
+                        {% endif %}
+
+                    {% else %}
+                        <!-- Default normal hours -->
+                        <p class="open">Open: 05:00AM</p>
+                        <p class="close">Close: 11:00PM</p>
+
+                        {% if perms.jangym.change_gymhours %}
+                            <a href="{% url 'create_hours' day.year day.month day.day %}"
+                               class="btn btn-success btn-sm mt-2">
+                                Add
+                            </a>
+                        {% endif %}
+                    {% endif %}
+
+                </div>
+                {% endwith %}
+
+            {% endfor %}
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+}
+
+.day-name {
+    text-align: center;
+    font-weight: bold;
+    padding: 10px 0;
+    background: #222;
+    color: #fff;
+    border-radius: 6px;
+}
+
+.calendar-cell {
+    background: #1e1e1e;
+    padding: 10px;
+    border-radius: 6px;
+    min-height: 120px;
+    color: #fff;
+    position: relative;
+}
+
+.other-month {
+    opacity: 0.3;
+}
+
+.closed-day {
+    background: #3a3a3a !important;
+    opacity: 0.6;
+}
+
+.date-number {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.closed {
+    color: #ff4d4d;
+    font-weight: bold;
+}
+
+.open, .close {
+    font-size: 0.85rem;
+}
+</style>
+
+{% endblock %}
