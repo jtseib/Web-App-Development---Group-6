@@ -36,6 +36,25 @@ def client_profile(request):
 
 
 def dashboard(request):
+<<<<<<< HEAD
+    return render(request, "dashboard.html")
+def client_sessions(request):
+    return render(request, 'client_sessions.html')
+def cancel_session(request):
+    return render(request, 'cancel_session.html')
+
+def reschedule_session(request):
+    return render(request, 'reschedule_session.html')
+from django.shortcuts import render
+
+
+def cancel_session(request):
+    return render(request, 'cancel_session.html')
+
+
+def reschedule_session(request):
+    return render(request, 'reschedule_session.html')
+=======
     return render(request, 'dashboard.html')
 
 class UpdateHours(UpdateView):
@@ -96,3 +115,4 @@ def get_context_data(self, **kwargs):
     context['get_hours'] = lambda d: hours_by_date.get(d)
     return context
 
+>>>>>>> b4ee3c88254200d3b19e97a74fc227801d81f4b1

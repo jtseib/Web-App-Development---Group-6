@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}Cancel Session{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="hero-card">
+    <h1>Cancel Session</h1>
+    <p class="muted">This page will allow clients to cancel a booked training session.</p>
+    <a class="btn" href="{% url 'client_sessions' %}">Back to Sessions</a>
+  </div>
+</section>
+{% endblock %}
