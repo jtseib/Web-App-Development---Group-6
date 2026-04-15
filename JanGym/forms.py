@@ -1,13 +1,11 @@
 from django import forms
 from .models import GymHours
 
-<<<<<<< HEAD
 
 class GymHoursForm(forms.ModelForm):
     class Meta:
         model = GymHours
         fields = '__all__'
-=======
 class GymHoursForm(forms.ModelForm):
     class Meta:
         model = GymHours
@@ -33,4 +31,4 @@ class GymHoursForm(forms.ModelForm):
                 'class': 'form-control'
             })
         }
->>>>>>> caec5d440b03c99a3049fa4a7ad58b370980d1ce
+

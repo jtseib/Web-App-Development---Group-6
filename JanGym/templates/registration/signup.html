@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Create Account{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="hero-card">
+    <h1>Create Account</h1>
+    <p class="muted">Sign up to start tracking workouts and booking sessions.</p>
+
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn">Create Account</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

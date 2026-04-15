@@ -15,7 +15,7 @@
         <a class="btn" href="{% url 'dashboard' %}">Go to Dashboard</a>
       {% else %}
         <a class="btn" href="{% url 'login' %}">Login</a>
-        <a class="btn btn-outline" href="#">Create Account</a>
+        <a class="btn btn-outline" href="{% url 'signup' %}">Create Account</a>
       {% endif %}
     </div>
 
