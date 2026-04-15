@@ -1,6 +1,7 @@
 import calendar
 from datetime import date, time
 
+<<<<<<< HEAD
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.urls import reverse_lazy
@@ -9,6 +10,16 @@ from django.views.generic import ListView, CreateView, UpdateView
 
 from .forms import GymHoursForm
 from .models import GymHours
+=======
+from django.views import View
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.urls import reverse_lazy, reverse
+from django.views.generic import ListView, CreateView, UpdateView, DetailView
+
+from .forms import GymHoursForm
+from JanGym.models import GymHours
+>>>>>>> caec5d440b03c99a3049fa4a7ad58b370980d1ce
 
 
 def index(request):
@@ -31,7 +42,11 @@ def client_profile(request):
 
 
 def dashboard(request):
+<<<<<<< HEAD
     return render(request, 'dashboard.html')
+=======
+    return render(request, "dashboard.html")
+>>>>>>> caec5d440b03c99a3049fa4a7ad58b370980d1ce
 
 
 def client_sessions(request):
@@ -97,4 +112,8 @@ class CreateHours(CreateView):
             'date': date(self.kwargs['year'], self.kwargs['month'], self.kwargs['day']),
             'open_time': time(5, 0),
             'close_time': time(23, 0),
+<<<<<<< HEAD
         }
+=======
+        }
+>>>>>>> caec5d440b03c99a3049fa4a7ad58b370980d1ce

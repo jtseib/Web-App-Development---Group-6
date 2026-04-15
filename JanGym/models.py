@@ -13,7 +13,6 @@ class GymHours(models.Model):
     class Meta:
         verbose_name = "Gym Hour"
         verbose_name_plural = "Gym Hours"
-
     def __str__(self):
         status = "Closed" if self.is_closed else "Open"
         return f"{self.date} - {status}"
