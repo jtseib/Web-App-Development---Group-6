@@ -1,7 +1,5 @@
 from django.urls import path
 from . import views
-from django.contrib import admin
-from django.urls import path, include
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -19,6 +17,6 @@ urlpatterns = [
     path('calendar/', views.MonthlyCalendarView.as_view(), name='calendar_month'),
     path('hours/update/<int:pk>/', views.UpdateHours.as_view(), name='update_hours'),
     path('hours/create/<int:year>/<int:month>/<int:day>/', views.CreateHours.as_view(), name='create_hours'),
-    path('signup/', views.signup, name='signup'),
 
+    path('signup/', views.signup, name='signup'),
 ]

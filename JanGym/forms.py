@@ -1,11 +1,7 @@
 from django import forms
-from .models import GymHours
+from .models import GymHours, WorkoutLog
+from django.contrib.auth.models import User
 
-
-class GymHoursForm(forms.ModelForm):
-    class Meta:
-        model = GymHours
-        fields = '__all__'
 class GymHoursForm(forms.ModelForm):
     class Meta:
         model = GymHours
@@ -31,4 +27,19 @@ class GymHoursForm(forms.ModelForm):
                 'class': 'form-control'
             })
         }
-
+class WorkoutLogForm(forms.ModelForm):
+    class Meta:
+        model = WorkoutLog
+        fields = ['exercise', 'reps', 'weight', 'duration', 'date']
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date'})
+        }
+class ClientProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email']
+        widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+        }
