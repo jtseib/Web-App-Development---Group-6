@@ -9,7 +9,8 @@ from django.views.generic import ListView, CreateView, UpdateView
 
 from .forms import GymHoursForm
 from .models import GymHours
-
+from django.contrib.auth.forms import UserCreationForm
+from django.shortcuts import redirect
 
 def index(request):
     return render(request, 'index.html')
@@ -98,3 +99,13 @@ class CreateHours(CreateView):
             'open_time': time(5, 0),
             'close_time': time(23, 0),
         }
+def signup(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')
+    else:
+        form = UserCreationForm()
+
+    return render(request, 'registration/signup.html', {'form': form})
