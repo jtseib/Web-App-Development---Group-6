@@ -46,6 +46,9 @@ def cancel_session(request):
 def reschedule_session(request):
     return render(request, 'reschedule_session.html')
 
+def log_workout_progress(request):
+    return render(request, 'log_workout_progress.html')
+
 
 class UpdateHours(UpdateView):
     model = GymHours
