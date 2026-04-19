@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import ListView, CreateView, UpdateView
+from django.views.generic import ListView, CreateView, UpdateView, DetailView
 
 from .forms import GymHoursForm
 from .models import GymHours
@@ -45,6 +45,9 @@ def cancel_session(request):
 
 def reschedule_session(request):
     return render(request, 'reschedule_session.html')
+
+def log_workout_progress(request):
+    return render(request, 'log_workout_progress.html')
 
 
 class UpdateHours(UpdateView):
@@ -109,3 +112,6 @@ def signup(request):
         form = UserCreationForm()
 
     return render(request, 'registration/signup.html', {'form': form})
+
+
+
