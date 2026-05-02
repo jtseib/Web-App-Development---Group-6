@@ -1,0 +1,12 @@
+<h1>Available Sessions</h1>
+
+<ul>
+  {% for slot in slots %}
+    <li>
+      {{ slot.date }} — {{ slot.start_time }} with {{ slot.trainer.username }}
+      <a class="btn" href="{% url 'book_session' slot.id %}">Book</a>
+    </li>
+  {% empty %}
+    <li>No available sessions.</li>
+  {% endfor %}
+</ul>

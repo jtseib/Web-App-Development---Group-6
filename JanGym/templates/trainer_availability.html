@@ -1,0 +1,11 @@
+<h1>Your Availability</h1>
+
+<ul>
+  {% for slot in slots %}
+    <li>{{ slot.date }} — {{ slot.start_time }} to {{ slot.end_time }}</li>
+  {% empty %}
+    <li>No availability added yet.</li>
+  {% endfor %}
+</ul>
+
+<a class="btn" href="{% url 'add_availability' %}">Add Availability</a>

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Set Default Availability{% endblock %}
+
+{% block content %}
+
+<h1 class="page-title">Set Default Weekly Availability</h1>
+
+<div class="card" style="max-width: 500px; margin: 20px auto; padding: 20px;">
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>Start Time</label>
+            <input type="time" name="start_time" required>
+        </div>
+
+        <div class="form-group">
+            <label>End Time</label>
+            <input type="time" name="end_time" required>
+        </div>
+
+        <div class="form-actions" style="margin-top: 20px;">
+            <button class="btn" type="submit">Save Default</button>
+            <a class="btn btn-outline" href="{% url 'trainer_calendar' %}">Cancel</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

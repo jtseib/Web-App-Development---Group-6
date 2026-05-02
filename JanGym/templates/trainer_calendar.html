@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load dict_extras %}
+
+{% block title %}Trainer Calendar{% endblock %}
+
+{% block content %}
+
+<h1>Trainer Availability Calendar</h1>
+
+<div>
+    <a class="btn btn-outline" href="{% url 'trainer_calendar' year month|add:'-1' %}">Previous</a>
+    <strong>{{ month_name }} {{ year }}</strong>
+    <a class="btn btn-outline" href="{% url 'trainer_calendar' year month|add:'1' %}">Next</a>
+</div>
+
+<br>
+
+<table border="1" cellpadding="8">
+    <thead>
+        <tr>
+            <th>Mon</th>
+            <th>Tue</th>
+            <th>Wed</th>
+            <th>Thu</th>
+            <th>Fri</th>
+            <th>Sat</th>
+            <th>Sun</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for week in month_days %}
+            <tr>
+                {% for day in week %}
+                    <td>
+
+                        <strong>{{ day.day }}</strong><br>
+
+                        {# Single-day availability #}
+                        {% with slot=availability_by_date|dict_get:day %}
+                            {% if slot %}
+                                <div>
+                                    <span>{{ slot.start_time }} - {{ slot.end_time }}</span>
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+
+                        {# Default weekly availability #}
+                        {% with default=default_by_weekday|dict_get:day.weekday %}
+                            {% if default %}
+                                <div>
+                                    <em>Default: {{ default.start_time }} - {{ default.end_time }}</em>
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+
+                        <br>
+
+                        <a href="{% url 'add_availability' %}?date={{ day }}">Add</a> |
+                        <a href="{% url 'set_default_availability' %}?weekday={{ day.weekday }}">Default</a>
+
+                    </td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
