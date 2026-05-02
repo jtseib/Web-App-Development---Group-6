@@ -69,6 +69,7 @@ class WorkoutInstance(models.Model):
     member = models.ForeignKey(User, on_delete=models.CASCADE, related_name="member_workouts")
     trainer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="trainer_workouts")
     timeslot = models.ForeignKey(TimeSlot, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, default='Scheduled')
     status = models.CharField(
         max_length=20,
         choices=[
@@ -77,6 +78,7 @@ class WorkoutInstance(models.Model):
             ('canceled', 'Canceled')
         ],
         default='pending'
+
     )
 
     def __str__(self):

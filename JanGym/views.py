@@ -2,18 +2,42 @@ import calendar
 from datetime import date, time
 
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.contrib.auth.forms import UserCreationForm
+from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import ListView, CreateView, UpdateView, DetailView
+from django.views.generic import ListView, CreateView, UpdateView
 
 from .forms import GymHoursForm
-from .models import GymHours
-from django.contrib.auth.forms import UserCreationForm
-from django.shortcuts import redirect
+from .models import GymHours, WorkoutInstance
+
 
 def index(request):
     return render(request, 'index.html')
+
+
+def dashboard(request):
+    return render(request, 'dashboard.html')
+
+
+def client_sessions(request):
+    sessions = WorkoutInstance.objects.all()
+    return render(request, 'client_sessions.html', {'sessions': sessions})
+
+
+def cancel_session(request):
+    return render(request, 'cancel_session.html')
+
+
+def reschedule_session(request):
+    if request.method == 'POST':
+        return redirect('client_sessions')
+
+    return render(request, 'reschedule_session.html')
+
+
+def log_workout_progress(request):
+    return render(request, 'log_workout_progress.html')
 
 
 @login_required
@@ -29,25 +53,6 @@ def workouts(request):
 @login_required
 def client_profile(request):
     return render(request, 'client_profile.html')
-
-
-def dashboard(request):
-    return render(request, 'dashboard.html')
-
-
-def client_sessions(request):
-    return render(request, 'client_sessions.html')
-
-
-def cancel_session(request):
-    return render(request, 'cancel_session.html')
-
-
-def reschedule_session(request):
-    return render(request, 'reschedule_session.html')
-
-def log_workout_progress(request):
-    return render(request, 'log_workout_progress.html')
 
 
 class UpdateHours(UpdateView):
@@ -102,6 +107,8 @@ class CreateHours(CreateView):
             'open_time': time(5, 0),
             'close_time': time(23, 0),
         }
+
+
 def signup(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
@@ -112,6 +119,3 @@ def signup(request):
         form = UserCreationForm()
 
     return render(request, 'registration/signup.html', {'form': form})
-
-
-

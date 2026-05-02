@@ -6,8 +6,27 @@
 <section class="hero">
   <div class="hero-card">
     <h1>Cancel Session</h1>
-    <p class="muted">This page will allow clients to cancel a booked training session.</p>
-    <a class="btn" href="{% url 'client_sessions' %}">Back to Sessions</a>
+    <p class="muted">Are you sure you want to cancel this session? This cannot be undone.</p>
+    <div class="hero-actions">
+      <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-cancel-confirm">Yes, Cancel Session</button>
+      </form>
+      <a class="btn btn-outline" href="{% url 'client_sessions' %}">Go Back</a>
+    </div>
   </div>
 </section>
+
+<style>
+.btn-cancel-confirm {
+  background: rgba(239,68,68,0.15);
+  color: #f87171;
+  border: 0.5px solid rgba(239,68,68,0.25);
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.btn-cancel-confirm:hover { opacity: 0.8; }
+</style>
 {% endblock %}

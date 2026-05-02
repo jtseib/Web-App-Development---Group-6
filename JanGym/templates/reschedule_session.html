@@ -6,8 +6,57 @@
 <section class="hero">
   <div class="hero-card">
     <h1>Reschedule Session</h1>
-    <p class="muted">This page will allow clients to choose a new training session time.</p>
-    <a class="btn" href="{% url 'client_sessions' %}">Back to Sessions</a>
+    <p class="muted">Choose a new date and time for your session.</p>
+
+    <form method="post" action="{% url 'reschedule_session' %}" class="reschedule-form">
+      {% csrf_token %}
+
+      <label>New Date</label>
+      <input type="date" name="date" required>
+
+      <label>Preferred Time</label>
+      <select name="time">
+        <option>6:00 AM</option>
+        <option>6:30 AM</option>
+        <option>7:00 AM</option>
+        <option>8:00 AM</option>
+        <option>9:00 AM</option>
+        <option>5:00 PM</option>
+        <option>6:00 PM</option>
+      </select>
+
+      <div class="hero-actions" style="margin-top:16px;">
+        <button type="submit" class="btn">Confirm Reschedule</button>
+        <a class="btn btn-outline" href="{% url 'client_sessions' %}">Go Back</a>
+      </div>
+    </form>
   </div>
 </section>
+
+<style>
+.reschedule-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.reschedule-form label {
+  color: #8b94b8;
+  font-size: 13px;
+}
+
+.reschedule-form input,
+.reschedule-form select {
+  background: #1a2545;
+  color: #fff;
+  border: 0.5px solid rgba(124,92,252,0.3);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  outline: none;
+  width: 100%;
+  max-width: 320px;
+}
+</style>
 {% endblock %}

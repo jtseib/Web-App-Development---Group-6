@@ -9,9 +9,9 @@ urlpatterns = [
     path('client-profile/', views.client_profile, name='client_profile'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('sessions/', views.client_sessions, name='client_sessions'),
+# CORRECT - use uuid
     path('cancel-session/', views.cancel_session, name='cancel_session'),
     path('reschedule-session/', views.reschedule_session, name='reschedule_session'),
-
     path('trainers/', views.trainers, name='trainers'),
     path('workouts/', views.workouts, name='workouts'),
 
