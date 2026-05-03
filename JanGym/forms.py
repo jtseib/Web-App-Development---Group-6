@@ -43,3 +43,24 @@ class ClientProfileForm(forms.ModelForm):
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
         }
+
+
+class UserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ["first_name", "last_name", "email"]
+
+        widgets = {
+            "first_name": forms.TextInput(attrs={"class": "form-control"}),
+            "last_name": forms.TextInput(attrs={"class": "form-control"}),
+            "email": forms.EmailInput(attrs={"class": "form-control"}),
+        }
+
+
+class TrainerSelectForm(forms.Form):
+    trainer = forms.ModelChoiceField(
+        queryset=User.objects.filter(is_staff=True),
+        required=True,
+        label="Choose Your Trainer",
+        widget=forms.Select(attrs={"class": "form-control"})
+    )

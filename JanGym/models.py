@@ -147,7 +147,7 @@ class MemberProfile(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="assigned_members"
+        related_name="clients"
     )
 
     def __str__(self):

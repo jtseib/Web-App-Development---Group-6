@@ -8,16 +8,31 @@
 
 <div class="grid">
 
-    <!-- Trainer -->
+    <!-- Trainer Card -->
     <div class="card">
         <h2>Your Trainer</h2>
 
         {% if trainer %}
-            <p>{{ trainer.username }}</p>
+            <div class="trainer-info">
+                <p><strong>Name:</strong> {{ trainer.first_name }} {{ trainer.last_name }}</p>
+                <p><strong>Username:</strong> {{ trainer.username }}</p>
+                <p><strong>Email:</strong>
+                    <a href="mailto:{{ trainer.email }}">{{ trainer.email }}</a>
+                </p>
+
+                <a class="btn btn-outline" href="{% url 'select_trainer' %}">
+                    Change Trainer
+                </a>
+            </div>
         {% else %}
             <p>No trainer assigned.</p>
+
+            <a class="btn" href="{% url 'select_trainer' %}">
+                Choose a Trainer
+            </a>
         {% endif %}
     </div>
+
 
     <!-- Next Session -->
     <div class="card">
@@ -28,22 +43,24 @@
                 <strong>{{ next_session.timeslot.start_time|date:"l, F j" }}</strong><br>
                 {{ next_session.timeslot.start_time|time:"g:i A" }} –
                 {{ next_session.timeslot.end_time|time:"g:i A" }}<br>
-                with {{ next_session.trainer.username }}
+                with {{ next_session.trainer.first_name }} {{ next_session.trainer.last_name }}
             </p>
         {% else %}
             <p>You have no upcoming sessions.</p>
         {% endif %}
     </div>
 
-    <!-- All Upcoming Sessions -->
+
+    <!-- Upcoming Sessions -->
     <div class="card">
         <h2>Upcoming Sessions</h2>
-        <ul>
+
+        <ul class="session-list">
             {% for session in upcoming_sessions %}
                 <li>
-                    {{ session.timeslot.start_time|date:"M j" }} —
+                    <strong>{{ session.timeslot.start_time|date:"M j" }}</strong> —
                     {{ session.timeslot.start_time|time:"g:i A" }}
-                    with {{ session.trainer.username }}
+                    with {{ session.trainer.first_name }} {{ session.trainer.last_name }}
                 </li>
             {% empty %}
                 <li>No upcoming sessions.</li>
@@ -51,13 +68,21 @@
         </ul>
     </div>
 
+
     <!-- Actions -->
     <div class="card">
         <h2>Actions</h2>
 
-        <a class="btn" href="{% url 'client_available_sessions' %}">
-            Book a Session
-        </a>
+        {% if trainer %}
+            <a class="btn"
+               href="{% url 'trainer_available_calendar' current_year current_week %}">
+                View Trainer Availability
+            </a>
+        {% else %}
+            <a class="btn" href="{% url 'select_trainer' %}">
+                Choose a Trainer
+            </a>
+        {% endif %}
 
         <a class="btn btn-outline" href="{% url 'client_sessions' %}">
             View All Sessions

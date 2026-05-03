@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Trainer Availability{% endblock %}
+
+{% block content %}
+<h1>Available Sessions with {{ trainer.first_name }} {{ trainer.last_name }}</h1>
+
+<div class="card">
+    <ul class="session-list">
+        {% for slot in available_slots %}
+            <li>
+                <strong>{{ slot.date|date:"l, F j" }}</strong><br>
+                {{ slot.start_time|time:"g:i A" }} – {{ slot.end_time|time:"g:i A" }}
+
+                <a class="btn" href="{% url 'book_trainer_slot' slot.id %}">
+                    Book This Session
+                </a>
+            </li>
+        {% empty %}
+            <li>No available sessions.</li>
+        {% endfor %}
+    </ul>
+</div>
+
+{% endblock %}

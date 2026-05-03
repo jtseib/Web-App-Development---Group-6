@@ -4,17 +4,17 @@ import datetime
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import ListView, CreateView, UpdateView
 
-from .forms import GymHoursForm
+from .forms import GymHoursForm, UserUpdateForm, TrainerSelectForm
 from .models import (
     GymHours,
     WorkoutInstance,
     DefaultAvailability,
-    TrainerAvailability
+    TrainerAvailability, TimeSlot
 )
 
 
@@ -24,28 +24,45 @@ def index(request):
 
 from django.utils import timezone
 
-@login_required
+from django.utils import timezone
+from .models import WorkoutInstance, MemberProfile
+
 def dashboard(request):
     user = request.user
-    now = timezone.now()
 
-    # Trainer may not exist
-    trainer = getattr(user, "trainer", None)
+    # Ensure MemberProfile exists
+    try:
+        profile = user.memberprofile
+    except MemberProfile.DoesNotExist:
+        profile = None
 
-    # Upcoming sessions based on TimeSlot start_time
-    upcoming_sessions = (
-        WorkoutInstance.objects
-        .filter(member=user, timeslot__start_time__gte=now)
-        .order_by("timeslot__start_time")
-    )
+    trainer = profile.trainer if profile else None
 
-    next_session = upcoming_sessions.first()
+    # Query upcoming workout sessions
+    if profile:
+        upcoming_sessions = (
+            WorkoutInstance.objects
+            .filter(member=user, timeslot__start_time__gte=timezone.now())
+            .order_by("timeslot__start_time")
+        )
+        next_session = upcoming_sessions.first()
+    else:
+        upcoming_sessions = []
+        next_session = None
+
+    # Add current year + week for the booking calendar
+    today = timezone.now().date()
+    current_year = today.year
+    current_week = today.isocalendar().week
 
     return render(request, "dashboard.html", {
         "trainer": trainer,
-        "upcoming_sessions": upcoming_sessions,
         "next_session": next_session,
+        "upcoming_sessions": upcoming_sessions,
+        "current_year": current_year,
+        "current_week": current_week,
     })
+
 
 
 
@@ -80,7 +97,19 @@ def workouts(request):
 
 @login_required
 def client_profile(request):
-    return render(request, 'client_profile.html')
+    user = request.user
+
+    if request.method == "POST":
+        form = UserUpdateForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Your profile has been updated successfully.")
+            return redirect("client_profile")
+    else:
+        form = UserUpdateForm(instance=user)
+
+    return render(request, "client_profile.html", {
+        "form": form,})
 
 
 class UpdateHours(UpdateView):
@@ -313,35 +342,192 @@ def trainer_availability(request):
 def available_sessions(request):
     return render(request, 'available_sessions.html')
 
-def client_available_sessions(request, year=None, week=None):
-    profile = request.user.memberprofile
-    trainer = profile.trainer
+from datetime import date, timedelta
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import MemberProfile, TrainerAvailability
 
+
+def client_available_sessions(request, year=None, week=None):
+    user = request.user
+
+    # --- 1. Handle missing MemberProfile safely ---
+    try:
+        profile = user.memberprofile
+    except MemberProfile.DoesNotExist:
+        messages.error(request, "You must complete your profile before viewing available sessions.")
+        return redirect("dashboard")  # or wherever you want them to go
+
+    # --- 2. Ensure the client has a trainer assigned ---
+    trainer = profile.trainer
     if trainer is None:
         return render(request, "no_trainer.html")
 
-    # Only show THIS trainer's availability
+    # --- 3. Determine the correct week ---
+    today = date.today()
+
+    if year is None or week is None:
+        year = today.year
+        week = today.isocalendar().week
+
+    # Monday of the requested week
+    week_start = date.fromisocalendar(year, week, 1)
+    week_days = [week_start + timedelta(days=i) for i in range(7)]
+
+    # --- 4. Query availability for THIS trainer only ---
     availability = TrainerAvailability.objects.filter(
         trainer=trainer,
         date__range=[week_days[0], week_days[-1]]
     ).order_by("date", "start_time")
 
+    # --- 5. Render template ---
+    return render(request, "client_available_sessions.html", {
+        "trainer": trainer,
+        "availability": availability,
+        "week_days": week_days,
+        "year": year,
+        "week": week,
+    })
 
-def book_session(request, slot_id):
-    slot = TrainerAvailability.objects.get(id=slot_id)
 
-    # Create workout instance
+def book_session(request, timeslot_id):
+    user = request.user
+
+    slot = get_object_or_404(TrainerAvailability, pk=timeslot_id)
+
+    # Create the workout session
     WorkoutInstance.objects.create(
+        member=user,
         trainer=slot.trainer,
-        member=request.user,
-        timeslot_start=slot.start_time,
-        timeslot_end=slot.end_time,
-        date=slot.date
+        timeslot=None,
+        status="confirmed"
     )
 
-
+    # Remove the availability slot so it cannot be double-booked
     slot.delete()
 
-    return redirect("client_sessions")
+    return redirect("dashboard")
 
 
+def select_trainer(request):
+    user = request.user
+
+    # Ensure profile exists
+    try:
+        profile = user.memberprofile
+    except MemberProfile.DoesNotExist:
+        messages.error(request, "You must complete your profile first.")
+        return redirect("dashboard")
+
+    if request.method == "POST":
+        form = TrainerSelectForm(request.POST)
+        if form.is_valid():
+            profile.trainer = form.cleaned_data["trainer"]
+            profile.save()
+            messages.success(request, "Trainer selected successfully.")
+            return redirect("dashboard")
+    else:
+        form = TrainerSelectForm()
+
+    return render(request, "select_trainer.html", {"form": form})
+
+def trainer_available_sessions(request):
+    user = request.user
+
+    # Ensure member profile exists
+    try:
+        profile = user.memberprofile
+    except MemberProfile.DoesNotExist:
+        messages.error(request, "You must complete your profile first.")
+        return redirect("dashboard")
+
+    trainer = profile.trainer
+    if not trainer:
+        return render(request, "error.html", {"message": "You do not have a trainer assigned."})
+
+    # Load future availability
+    available_slots = (
+        TrainerAvailability.objects
+        .filter(
+            trainer=trainer,
+            date__gte=timezone.now().date()
+        )
+        .order_by("date", "start_time")
+    )
+
+    return render(request, "trainer_available_sessions.html", {
+        "trainer": trainer,
+        "available_slots": available_slots,
+    })
+
+def book_trainer_slot(request, slot_id):
+    user = request.user
+
+    slot = get_object_or_404(TrainerAvailability, pk=slot_id)
+
+    # Create workout session
+    WorkoutInstance.objects.create(
+        member=user,
+        trainer=slot.trainer,
+        timeslot=None,  # You are not using TimeSlot anymore
+        status="confirmed"
+    )
+
+    # Remove the availability slot so it cannot be double-booked
+    slot.delete()
+
+    messages.success(request, "Session booked successfully!")
+    return redirect("dashboard")
+
+
+def trainer_available_calendar(request, year=None, week=None):
+    user = request.user
+
+    # Ensure member profile exists
+    try:
+        profile = user.memberprofile
+    except MemberProfile.DoesNotExist:
+        return render(request, "error.html", {"message": "No member profile found."})
+
+    trainer = profile.trainer
+    if not trainer:
+        return render(request, "error.html", {"message": "You do not have a trainer assigned."})
+
+    # Determine the week to display
+    today = datetime.date.today()
+    if year is None or week is None:
+        return redirect(
+            "trainer_available_calendar",
+            year=today.year,
+            week=today.isocalendar().week
+        )
+
+    # Get Monday of the requested week
+    monday = datetime.date.fromisocalendar(year, week, 1)
+    week_days = [monday + datetime.timedelta(days=i) for i in range(7)]
+
+    # Load availability for THIS trainer for the week
+    availability = TrainerAvailability.objects.filter(
+        trainer=trainer,
+        date__range=[week_days[0], week_days[-1]]
+    ).order_by("date", "start_time")
+
+    # Group availability by date (same as trainer calendar)
+    availability_by_date = {}
+    for a in availability:
+        key = a.date.strftime("%Y-%m-%d")
+        availability_by_date.setdefault(key, []).append(a)
+
+    # Time slots (6 AM → 10 PM) — same as trainer calendar
+    time_slots = [datetime.time(h, 0) for h in range(6, 22)]
+
+    context = {
+        "trainer": trainer,
+        "week_days": week_days,
+        "availability_by_date": availability_by_date,
+        "time_slots": time_slots,
+        "year": year,
+        "week": week,
+    }
+
+    return render(request, "trainer_available_calendar.html", context)

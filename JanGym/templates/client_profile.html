@@ -5,7 +5,6 @@
 {% block content %}
 <h1>My Profile</h1>
 
-<!-- SUCCESS MESSAGE -->
 {% if messages %}
     {% for message in messages %}
         <div style="background-color: #28a745; color: white; padding: 10px; margin-bottom: 15px; border-radius: 5px;">
@@ -16,17 +15,14 @@
 
 <div class="card" style="padding: 20px;">
 
-    <!-- SHOW PROFILE INFO -->
     <p><strong>First Name:</strong> {{ user.first_name }}</p>
     <p><strong>Last Name:</strong> {{ user.last_name }}</p>
     <p><strong>Email:</strong> {{ user.email }}</p>
 
     <br>
 
-    <!-- BUTTON TO SHOW FORM -->
     <button onclick="toggleForm()">Update Profile Information</button>
 
-    <!-- FORM (HIDDEN BY DEFAULT) -->
     <div id="profileForm" style="display: none; margin-top: 20px;">
         <form method="post">
             {% csrf_token %}
@@ -40,11 +36,7 @@
 <script>
 function toggleForm() {
     var form = document.getElementById("profileForm");
-    if (form.style.display === "none") {
-        form.style.display = "block";
-    } else {
-        form.style.display = "none";
-    }
+    form.style.display = (form.style.display === "none") ? "block" : "none";
 }
 </script>
 

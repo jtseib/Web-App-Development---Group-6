@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% load dict_extras %}
+
+{% block title %}Book a Session{% endblock %}
+
+{% block content %}
+
+<h1>Available Sessions with {{ trainer.first_name }} {{ trainer.last_name }}</h1>
+
+<div class="calendar-nav">
+    <a class="btn btn-outline"
+       href="{% url 'trainer_available_calendar' year=year week=week|add:'-1' %}">
+        Previous Week
+    </a>
+
+    <strong>Week {{ week }} — {{ week_days.0|date:"M j" }} to {{ week_days.6|date:"M j" }}</strong>
+
+    <a class="btn btn-outline"
+       href="{% url 'trainer_available_calendar' year=year week=week|add:'1' %}">
+        Next Week
+    </a>
+</div>
+
+<div class="week-grid">
+    <!-- Time column -->
+    <div class="time-column">
+        {% for t in time_slots %}
+            <div class="time-cell">{{ t|time:"g A" }}</div>
+        {% endfor %}
+    </div>
+
+    <!-- Day columns -->
+    {% for day in week_days %}
+        {% with key=day|date:"Y-m-d" %}
+        {% with slots=availability_by_date|get_item:key %}
+        <div class="day-column">
+            <div class="day-header">{{ day|date:"D M j" }}</div>
+
+            {% for t in time_slots %}
+                <div class="slot-cell"></div>
+            {% endfor %}
+
+            {% if slots %}
+                {% for slot in slots %}
+                    <a href="{% url 'book_trainer_slot' slot.id %}"
+                       class="availability-card {% if forloop.counter0|divisibleby:2 %}bubble-a{% else %}bubble-b{% endif %}"
+                       style="
+                           top: calc(({{ slot.start_time.hour }} - 6) * 50px);
+                           height: calc(({{ slot.end_time.hour }} - {{ slot.start_time.hour }}) * 50px);
+                       ">
+                        Book<br>
+                        {{ slot.start_time|time:"g:i A" }} – {{ slot.end_time|time:"g:i A" }}
+                    </a>
+                {% endfor %}
+            {% endif %}
+        </div>
+        {% endwith %}
+        {% endwith %}
+    {% endfor %}
+</div>
+
+<style>
+.week-grid {
+    display: grid;
+    grid-template-columns: 80px repeat(7, 1fr);
+    gap: 5px;
+    position: relative;
+}
+
+.time-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.time-cell {
+    height: 50px;
+    border-bottom: 1px solid #444;
+    color: #ccc;
+}
+
+.day-column {
+    position: relative;
+    border-left: 1px solid #444;
+}
+
+.day-header {
+    text-align: center;
+    font-weight: bold;
+    padding: 5px;
+    background: #222;
+    border-bottom: 1px solid #444;
+}
+
+.slot-cell {
+    height: 50px;
+    border-bottom: 1px solid #333;
+    position: relative;
+}
+
+.availability-card {
+    position: absolute;
+    left: 5px;
+    right: 5px;
+    padding: 5px;
+    border-radius: 5px;
+    font-weight: bold;
+    text-align: center;
+    color: #000;
+}
+
+/* Alternating bubble colors */
+.bubble-a {
+    background: #4dff4d; /* bright green */
+}
+
+.bubble-b {
+    background: #4dc3ff; /* bright blue */
+}
+</style>
+
+{% endblock %}
