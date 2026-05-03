@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load dict_extras %}
+
+{% block title %}Book a Session{% endblock %}
+
+{% block content %}
+
+<h1>Book a Session</h1>
+
+<div class="calendar-nav">
+    <a class="btn btn-outline"
+       href="{% url 'client_available_sessions_week' year=year week=week|add:'-1' %}">
+        Previous Week
+    </a>
+
+    <strong>Week {{ week }}</strong>
+
+    <a class="btn btn-outline"
+       href="{% url 'client_available_sessions_week' year=year week=week|add:'1' %}">
+        Next Week
+    </a>
+</div>
+
+<div class="week-grid">
+    <div class="time-column">
+        {% for t in time_slots %}
+            <div class="time-cell">{{ t|time:"g A" }}</div>
+        {% endfor %}
+    </div>
+
+    {% for day in week_days %}
+        <div class="day-column">
+            <div class="day-header">{{ day|date:"D M j" }}</div>
+
+            {% with key=day|date:'Y-m-d' %}
+                {% with slots=availability_by_date|get_item:key %}
+                    {% if slots %}
+                        {% for slot in slots %}
+                            <a href="{% url 'book_session' slot.id %}"
+                               class="availability-card bubble-a"
+                               style="top: calc(({{ slot.start_time.hour }} - 6) * 50px);
+                                      height: 50px;">
+                                {{ slot.start_time|time:"g A" }}
+                            </a>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            {% endwith %}
+        </div>
+    {% endfor %}
+</div>
+
+{% endblock %}
