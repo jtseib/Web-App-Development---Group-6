@@ -1,30 +1,30 @@
 {% extends "base.html" %}
 
-{% block title %}Set Default Availability{% endblock %}
+{% block title %}Add Availability{% endblock %}
 
 {% block content %}
 
-<h1 class="page-title">Set Default Weekly Availability</h1>
+<h2>Add Availability</h2>
 
-<div class="card" style="max-width: 500px; margin: 20px auto; padding: 20px;">
-    <form method="POST">
-        {% csrf_token %}
+<form method="POST">
+    {% csrf_token %}
 
-        <div class="form-group">
-            <label>Start Time</label>
-            <input type="time" name="start_time" required>
-        </div>
+    <label>Select Days</label><br>
+    <label><input type="checkbox" name="days" value="0"> Monday</label><br>
+    <label><input type="checkbox" name="days" value="1"> Tuesday</label><br>
+    <label><input type="checkbox" name="days" value="2"> Wednesday</label><br>
+    <label><input type="checkbox" name="days" value="3"> Thursday</label><br>
+    <label><input type="checkbox" name="days" value="4"> Friday</label><br>
+    <label><input type="checkbox" name="days" value="5"> Saturday</label><br>
+    <label><input type="checkbox" name="days" value="6"> Sunday</label><br><br>
 
-        <div class="form-group">
-            <label>End Time</label>
-            <input type="time" name="end_time" required>
-        </div>
+    <label>Start Time</label>
+    <input type="time" name="start_time" step="1800" required>
 
-        <div class="form-actions" style="margin-top: 20px;">
-            <button class="btn" type="submit">Save Default</button>
-            <a class="btn btn-outline" href="{% url 'trainer_calendar' %}">Cancel</a>
-        </div>
-    </form>
-</div>
+    <label>End Time</label>
+    <input type="time" name="end_time" step="1800" required>
+
+    <button type="submit" class="btn btn-primary mt-3">Save Availability</button>
+</form>
 
 {% endblock %}

@@ -1,9 +1,69 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}Member Dashboard{% endblock %}
 
 {% block content %}
-<h1>Client Dashboard</h1>
-<p>This page will show workouts, sessions, and progress.</p>
-<a href="{% url 'client_sessions' %}">View My Sessions</a>
+
+<h1>Member Dashboard</h1>
+
+<div class="grid">
+
+    <!-- Trainer -->
+    <div class="card">
+        <h2>Your Trainer</h2>
+
+        {% if trainer %}
+            <p>{{ trainer.username }}</p>
+        {% else %}
+            <p>No trainer assigned.</p>
+        {% endif %}
+    </div>
+
+    <!-- Next Session -->
+    <div class="card">
+        <h2>Your Next Session</h2>
+
+        {% if next_session %}
+            <p>
+                <strong>{{ next_session.timeslot.start_time|date:"l, F j" }}</strong><br>
+                {{ next_session.timeslot.start_time|time:"g:i A" }} –
+                {{ next_session.timeslot.end_time|time:"g:i A" }}<br>
+                with {{ next_session.trainer.username }}
+            </p>
+        {% else %}
+            <p>You have no upcoming sessions.</p>
+        {% endif %}
+    </div>
+
+    <!-- All Upcoming Sessions -->
+    <div class="card">
+        <h2>Upcoming Sessions</h2>
+        <ul>
+            {% for session in upcoming_sessions %}
+                <li>
+                    {{ session.timeslot.start_time|date:"M j" }} —
+                    {{ session.timeslot.start_time|time:"g:i A" }}
+                    with {{ session.trainer.username }}
+                </li>
+            {% empty %}
+                <li>No upcoming sessions.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Actions -->
+    <div class="card">
+        <h2>Actions</h2>
+
+        <a class="btn" href="{% url 'client_available_sessions' %}">
+            Book a Session
+        </a>
+
+        <a class="btn btn-outline" href="{% url 'client_sessions' %}">
+            View All Sessions
+        </a>
+    </div>
+
+</div>
+
 {% endblock %}

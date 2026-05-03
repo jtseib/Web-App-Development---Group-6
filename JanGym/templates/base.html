@@ -19,27 +19,29 @@
         </h1>
 
         <nav class="nav">
+
             <a href="{% url 'index' %}">Home</a>
-            <a href="{% url 'dashboard' %}">Dashboard</a>
             <a href="{% url 'client_profile' %}">Profile</a>
             <a href="{% url 'workouts' %}">Training</a>
             <a href="{% url 'calendar_month' %}">Hours</a>
             <a href="#">FAQ</a>
 
-            <ul class="nav navbar-nav ml-auto">
-                {% if user.is_authenticated %}
-                    <li>
-                        <form action="{% url 'logout' %}" method="post" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit">Log out</button>
-                        </form>
-                    </li>
-                {% else %}
-                    <li>
-                        <a class="nav-link" href="{% url 'login' %}">Login</a>
-                    </li>
-                {% endif %}
-            </ul>
+            {% if user.is_staff %}
+                <a href="{% url 'trainer_dashboard' %}">Dashboard</a>
+            {% else %}
+                <a href="{% url 'dashboard' %}">Dashboard</a>
+            {% endif %}
+
+
+            {% if user.is_authenticated %}
+                <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="link-btn">Log out</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}">Login</a>
+            {% endif %}
+
         </nav>
 
     </div>

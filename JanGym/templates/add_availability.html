@@ -4,64 +4,21 @@
 
 {% block content %}
 
-<h1 class="page-title">Add Availability</h1>
+<h2>Add Availability</h2>
 
-<div class="card" style="max-width: 550px; margin: 30px auto; padding: 25px;">
+<form method="POST">
+    {% csrf_token %}
 
-    <form method="POST" class="availability-form">
-        {% csrf_token %}
+    <label>Date</label>
+    <input type="date" name="date" required>
 
-        <div class="form-group">
-            <label for="id_date">Date</label>
-            {{ form.date }}
-        </div>
+    <label>Start Time</label>
+    <input type="time" name="start_time" step="1800" required>
 
-        <div class="form-group">
-            <label for="id_start_time">Start Time</label>
-            {{ form.start_time }}
-        </div>
+    <label>End Time</label>
+    <input type="time" name="end_time" step="1800" required>
 
-        <div class="form-group">
-            <label for="id_end_time">End Time</label>
-            {{ form.end_time }}
-        </div>
-
-        <div class="form-actions" style="margin-top: 20px;">
-            <button class="btn" type="submit">Save Availability</button>
-            <a class="btn btn-outline" href="{% url 'trainer_availability' %}">Back</a>
-        </div>
-    </form>
-
-</div>
-
-<style>
-    .page-title {
-        text-align: center;
-        margin-bottom: 20px;
-    }
-
-    .availability-form .form-group {
-        margin-bottom: 15px;
-    }
-
-    .availability-form label {
-        display: block;
-        font-weight: 600;
-        margin-bottom: 5px;
-    }
-
-    .availability-form input {
-        width: 100%;
-        padding: 8px 10px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        font-size: 1rem;
-    }
-
-    .form-actions {
-        display: flex;
-        justify-content: space-between;
-    }
-</style>
+    <button type="submit" class="btn btn-primary mt-3">Save</button>
+</form>
 
 {% endblock %}

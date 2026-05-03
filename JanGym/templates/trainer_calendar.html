@@ -1,69 +1,132 @@
 {% extends "base.html" %}
 {% load dict_extras %}
 
-{% block title %}Trainer Calendar{% endblock %}
+{% block title %}Trainer Weekly Calendar{% endblock %}
 
 {% block content %}
 
-<h1>Trainer Availability Calendar</h1>
+<h1 class="mb-4">Weekly Availability</h1>
+<a href="{% url 'set_default_availability' %}" class="btn btn-primary mb-3">
+    Add Availability
+</a>
 
-<div>
-    <a class="btn btn-outline" href="{% url 'trainer_calendar' year month|add:'-1' %}">Previous</a>
-    <strong>{{ month_name }} {{ year }}</strong>
-    <a class="btn btn-outline" href="{% url 'trainer_calendar' year month|add:'1' %}">Next</a>
+
+
+<div class="calendar-nav">
+    <a class="btn btn-outline"
+       href="{% url 'trainer_calendar_week' year=year week=week|add:'-1' %}">
+        Previous Week
+    </a>
+
+    <strong>Week {{ week }} — {{ week_days.0|date:"M j" }} to {{ week_days.6|date:"M j" }}</strong>
+
+    <a class="btn btn-outline"
+       href="{% url 'trainer_calendar_week' year=year week=week|add:'1' %}">
+        Next Week
+    </a>
 </div>
 
-<br>
 
-<table border="1" cellpadding="8">
-    <thead>
-        <tr>
-            <th>Mon</th>
-            <th>Tue</th>
-            <th>Wed</th>
-            <th>Thu</th>
-            <th>Fri</th>
-            <th>Sat</th>
-            <th>Sun</th>
-        </tr>
-    </thead>
-
-    <tbody>
-        {% for week in month_days %}
-            <tr>
-                {% for day in week %}
-                    <td>
-
-                        <strong>{{ day.day }}</strong><br>
-
-                        {# Single-day availability #}
-                        {% with slot=availability_by_date|dict_get:day %}
-                            {% if slot %}
-                                <div>
-                                    <span>{{ slot.start_time }} - {{ slot.end_time }}</span>
-                                </div>
-                            {% endif %}
-                        {% endwith %}
-
-                        {# Default weekly availability #}
-                        {% with default=default_by_weekday|dict_get:day.weekday %}
-                            {% if default %}
-                                <div>
-                                    <em>Default: {{ default.start_time }} - {{ default.end_time }}</em>
-                                </div>
-                            {% endif %}
-                        {% endwith %}
-
-                        <br>
-
-                        <a href="{% url 'add_availability' %}?date={{ day }}">Add</a> |
-                        <a href="{% url 'set_default_availability' %}?weekday={{ day.weekday }}">Default</a>
-
-                    </td>
-                {% endfor %}
-            </tr>
+<div class="week-grid">
+    <div class="time-column">
+        {% for t in time_slots %}
+            <div class="time-cell">{{ t|time:"g A" }}</div>
         {% endfor %}
-    </tbody>
-</table>
+    </div>
+
+    {% for day in week_days %}
+        <div class="day-column">
+            <div class="day-header">{{ day|date:"D M j" }}</div>
+
+            {% for t in time_slots %}
+                <div class="slot-cell">
+                    <a href="{% url 'add_availability' %}?date={{ day|date:'Y-m-d' }}&start={{ t }}" class="slot-add">+</a>
+                </div>
+            {% endfor %}
+
+            {% with key=day|date:'Y-m-d' %}
+                {% with slots=availability_by_date|get_item:key %}
+                    {% if slots %}
+                        {% for slot in slots %}
+                            <div class="availability-card {% if forloop.counter0|divisibleby:2 %}bubble-a{% else %}bubble-b{% endif %}"
+                                 style="top: calc(({{ slot.start_time.hour }} - 6) * 50px);
+                                        height: calc(({{ slot.end_time.hour }} - {{ slot.start_time.hour }}) * 50px);">
+                                {{ slot.start_time }} – {{ slot.end_time }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            {% endwith %}
+        </div>
+    {% endfor %}
+</div>
+
+<style>
+.week-grid {
+    display: grid;
+    grid-template-columns: 80px repeat(7, 1fr);
+    gap: 5px;
+    position: relative;
+}
+
+.time-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.time-cell {
+    height: 50px;
+    border-bottom: 1px solid #444;
+    color: #ccc;
+}
+
+.day-column {
+    position: relative;
+    border-left: 1px solid #444;
+}
+
+.day-header {
+    text-align: center;
+    font-weight: bold;
+    padding: 5px;
+    background: #222;
+    border-bottom: 1px solid #444;
+}
+
+.slot-cell {
+    height: 50px;
+    border-bottom: 1px solid #333;
+    position: relative;
+}
+
+.slot-add {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    color: #888;
+    text-decoration: none;
+}
+
+.availability-card {
+    position: absolute;
+    left: 5px;
+    right: 5px;
+    background: #4dff4d;
+    color: #000;
+    padding: 5px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+.bubble-a {
+    background: #4dff4d; /* bright green */
+    color: #000;
+}
+
+.bubble-b {
+    background: #4dc3ff; /* bright blue */
+    color: #000;
+}
+
+</style>
 
 {% endblock %}
