@@ -48,6 +48,6 @@ urlpatterns = [
     path("book/<int:slot_id>/", views.book_trainer_slot, name="book_trainer_slot"),
     path("trainer/client/<int:user_id>/", views.trainer_view_client, name="trainer_view_client"),
 
-
+    path("session/<uuid:session_id>/cancel/", views.cancel_session, name="cancel_session"),
 
 ]

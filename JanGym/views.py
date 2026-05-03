@@ -32,30 +32,45 @@ def index(request):
 
 from django.utils import timezone
 
+from django.shortcuts import render
+from django.utils import timezone
+from django.core.serializers.json import DjangoJSONEncoder
+import json
+
+from django.shortcuts import render
+from django.utils import timezone
+from django.core.serializers.json import DjangoJSONEncoder
+import json
+
+from django.shortcuts import render
+from django.utils import timezone
+
 def dashboard(request):
     user = request.user
 
-    # Member profile
     profile = user.memberprofile
     trainer = profile.trainer if profile else None
 
-    # Current datetime (timezone-aware)
     now = timezone.now()
 
-    # Only sessions in the future (not earlier today)
     upcoming_sessions = (
         WorkoutInstance.objects
-        .filter(
-            member=user,
-            timeslot__start_time__gte=now
-        )
+        .filter(member=user, timeslot__start_time__gte=now)
         .order_by("timeslot__start_time")
     )
 
-    # First upcoming session
     next_session = upcoming_sessions.first() if upcoming_sessions else None
 
-    # Current week for "View Trainer Availability"
+    session_data = []
+    for s in upcoming_sessions:
+        session_data.append({
+            "pk": str(s.pk),
+            "trainer_name": f"{s.trainer.first_name} {s.trainer.last_name}",
+            "start": s.timeslot.start_time.isoformat(),
+            "end": s.timeslot.end_time.isoformat(),
+            "status": s.status,
+        })
+
     current_year = now.year
     current_week = now.isocalendar().week
 
@@ -63,11 +78,15 @@ def dashboard(request):
         "trainer": trainer,
         "next_session": next_session,
         "upcoming_sessions": upcoming_sessions,
+        "session_data": session_data,
         "current_year": current_year,
         "current_week": current_week,
     }
 
     return render(request, "dashboard.html", context)
+
+
+
 
 def client_sessions(request):
     sessions = WorkoutInstance.objects.all()
@@ -625,4 +644,29 @@ def trainer_view_client(request, user_id):
     }
 
     return render(request, "trainer_view_client.html", context)
+
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+
+
+
+def cancel_session(request, session_id):
+    session = get_object_or_404(
+        WorkoutInstance,
+        res_id=session_id,
+        member=request.user
+    )
+
+    # Free the timeslot
+    session.timeslot.is_available = True
+    session.timeslot.save()
+
+    # Delete the reservation
+    session.delete()
+
+    messages.success(request, "Your session has been canceled.")
+    return redirect("dashboard")
+
+
+
 

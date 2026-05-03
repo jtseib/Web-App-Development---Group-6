@@ -35,32 +35,54 @@
 
 
     <!-- Next Session -->
-    <div class="card">
-        <h2>Your Next Session</h2>
+    <div class="card next-session-card" style="position: relative;">
 
-        {% if next_session %}
-            <p>
-                <strong>{{ next_session.timeslot.start_time|date:"l, F j" }}</strong><br>
-                {{ next_session.timeslot.start_time|time:"g:i A" }} –
-                {{ next_session.timeslot.end_time|time:"g:i A" }}<br>
-                with {{ next_session.trainer.first_name }} {{ next_session.trainer.last_name }}
-            </p>
+        <h2>Your Sessions</h2>
+
+        {% if upcoming_sessions %}
+
+            <div id="session-display">
+                <p>
+                    <strong>{{ upcoming_sessions.0.timeslot.start_time|date:"l, F j" }}</strong><br>
+                    {{ upcoming_sessions.0.timeslot.start_time|time:"g:i A" }} –
+                    {{ upcoming_sessions.0.timeslot.end_time|time:"g:i A" }}<br>
+                    with {{ upcoming_sessions.0.trainer.first_name }} {{ upcoming_sessions.0.trainer.last_name }}
+                </p>
+
+                <div class="actions-row" style="margin-top: 1rem; display: flex; gap: 10px;">
+                    <form action="{% url 'cancel_session' upcoming_sessions.0.pk %}" method="post">
+                        {% csrf_token %}
+                        <button class="btn btn-outline" type="submit">Cancel</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="session-nav">
+                <button id="prev-session" class="nav-arrow">&lt;</button>
+                <button id="next-session" class="nav-arrow">&gt;</button>
+            </div>
+
+            {{ session_data|json_script:"sessions" }}
+
         {% else %}
             <p>You have no upcoming sessions.</p>
         {% endif %}
     </div>
 
 
+
+
     <!-- Assigned Workouts -->
-<div class="card">
-    <h2>My Assigned Workouts</h2>
+    <div class="card">
+        <h2>My Assigned Workouts</h2>
 
-    <p>View the workouts your trainer has assigned to you.</p>
+        <p>View the workouts your trainer has assigned to you.</p>
 
-    <a class="btn" href="{% url 'workouts' %}">
-        View Workout Plans
-    </a>
-</div>
+        <a class="btn" href="{% url 'workouts' %}">
+            View Workout Plans
+        </a>
+    </div>
+
 
     <!-- Actions -->
     <div class="card">
@@ -85,3 +107,61 @@
 </div>
 
 {% endblock %}
+
+
+<!-- SESSION SCROLLER JS -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const sessionsEl = document.getElementById("sessions");
+    if (!sessionsEl) return;  // no upcoming sessions
+
+    const sessions = JSON.parse(sessionsEl.textContent || "[]");
+    if (!sessions.length) return;
+
+    const display = document.getElementById("session-display");
+    const prevBtn = document.getElementById("prev-session");
+    const nextBtn = document.getElementById("next-session");
+    if (!display || !prevBtn || !nextBtn) return;
+
+    const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    const csrfToken = csrfMeta ? csrfMeta.content : "";
+
+    let index = 0;
+
+    function renderSession() {
+        const s = sessions[index];
+
+        display.innerHTML = `
+            <p>
+                <strong>${new Date(s.start).toLocaleDateString()}</strong><br>
+                ${new Date(s.start).toLocaleTimeString([], {hour: 'numeric', minute: '2-digit'})}
+                –
+                ${new Date(s.end).toLocaleTimeString([], {hour: 'numeric', minute: '2-digit'})}<br>
+                with ${s.trainer_name}
+            </p>
+
+            <div class="actions-row" style="margin-top: 1rem; display: flex; gap: 10px;">
+                <form action="/session/${s.pk}/cancel/" method="post">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
+                    <button class="btn btn-outline" type="submit">Cancel</button>
+                </form>
+            </div>
+        `;
+    }
+
+    prevBtn.addEventListener("click", () => {
+        if (index > 0) {
+            index--;
+            renderSession();
+        }
+    });
+
+    nextBtn.addEventListener("click", () => {
+        if (index < sessions.length - 1) {
+            index++;
+            renderSession();
+        }
+    });
+});
+</script>
+
