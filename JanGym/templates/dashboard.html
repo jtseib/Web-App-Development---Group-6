@@ -51,23 +51,16 @@
     </div>
 
 
-    <!-- Upcoming Sessions -->
-    <div class="card">
-        <h2>Upcoming Sessions</h2>
+    <!-- Assigned Workouts -->
+<div class="card">
+    <h2>My Assigned Workouts</h2>
 
-        <ul class="session-list">
-            {% for session in upcoming_sessions %}
-                <li>
-                    <strong>{{ session.timeslot.start_time|date:"M j" }}</strong> —
-                    {{ session.timeslot.start_time|time:"g:i A" }}
-                    with {{ session.trainer.first_name }} {{ session.trainer.last_name }}
-                </li>
-            {% empty %}
-                <li>No upcoming sessions.</li>
-            {% endfor %}
-        </ul>
-    </div>
+    <p>View the workouts your trainer has assigned to you.</p>
 
+    <a class="btn" href="{% url 'workouts' %}">
+        View Workout Plans
+    </a>
+</div>
 
     <!-- Actions -->
     <div class="card">

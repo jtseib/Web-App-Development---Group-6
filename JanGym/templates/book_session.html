@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Confirm Session Booking{% endblock %}
+
+{% block content %}
+
+<h1>Confirm Your Session</h1>
+
+<div class="booking-card">
+
+    <h2>Session Details</h2>
+
+    <p><strong>Member:</strong> {{ request.user.first_name }} {{ request.user.last_name }}</p>
+
+    <p><strong>Trainer:</strong> 
+        {{ slot.trainer.first_name }} {{ slot.trainer.last_name }}
+    </p>
+
+    <p><strong>Date:</strong> {{ slot.date|date:"l, F j, Y" }}</p>
+
+    <p><strong>Time:</strong> 
+        {{ slot.start_time|time:"g:i A" }} – {{ slot.end_time|time:"g:i A" }}
+    </p>
+
+    <hr>
+
+    <form method="post" action="{% url 'book_trainer_slot' slot.id %}">
+        {% csrf_token %}
+
+        <button type="submit" class="btn btn-primary">
+            Confirm Booking
+        </button>
+
+        <a href="javascript:history.back()" class="btn btn-outline">
+            Cancel
+        </a>
+    </form>
+
+</div>
+
+<style>
+.booking-card {
+    max-width: 500px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #222;
+    border: 1px solid #444;
+    border-radius: 8px;
+    color: #eee;
+}
+
+.booking-card h2 {
+    margin-bottom: 15px;
+}
+
+.booking-card p {
+    margin: 8px 0;
+    font-size: 1.1rem;
+}
+
+.btn {
+    margin-right: 10px;
+}
+</style>
+
+{% endblock %}

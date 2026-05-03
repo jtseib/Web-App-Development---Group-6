@@ -142,6 +142,8 @@ class DefaultAvailability(models.Model):
 
 class MemberProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    # Trainer is OPTIONAL — trainers will have this as NULL
     trainer = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
@@ -152,5 +154,6 @@ class MemberProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.username} Profile"
+
 
 

@@ -11,10 +11,21 @@
   <!-- Upcoming Sessions -->
   <div class="card">
     <h2>Upcoming Sessions</h2>
+
+    {% if next_session %}
+      <p><strong>Next session:</strong><br>
+        {{ next_session.timeslot.start_time|date:"l, F j" }} —
+        {{ next_session.timeslot.start_time|time:"g:i A" }}
+        with {{ next_session.member.username }}
+      </p>
+      <hr>
+    {% endif %}
+
     <ul>
       {% for session in upcoming_sessions %}
         <li>
-          {{ session.timeslot.date }} — {{ session.timeslot.start_time }}
+          {{ session.timeslot.start_time|date:"M j" }} —
+          {{ session.timeslot.start_time|time:"g:i A" }}
           with {{ session.member.username }}
         </li>
       {% empty %}
@@ -24,7 +35,7 @@
   </div>
 
   <!-- Availability -->
-<div class="card">
+  <div class="card">
     <h2>Your Availability</h2>
 
     {% if next_availability %}
@@ -40,26 +51,36 @@
     {% else %}
         <p>You have no upcoming availability.</p>
     {% endif %}
-</div>
-
+  </div>
 
   <!-- Clients -->
-  <div class="card">
+<div class="card">
     <h2>Your Clients</h2>
     <ul>
       {% for c in clients %}
-        <li>{{ c.member__username }}</li>
+        <li>
+            <a href="{% url 'trainer_view_client' c.user__id %}">
+                {{ c.user__username }}
+            </a>
+        </li>
       {% empty %}
         <li>No clients yet.</li>
       {% endfor %}
     </ul>
-  </div>
+</div>
 
 
+  <!-- Actions -->
   <div class="card">
     <h2>Actions</h2>
-    <a class="btn" href="{% url 'trainer_calendar' %}">Manage Availability</a>
-    <a class="btn btn-outline" href="{% url 'available_sessions' %}">View Client Booking Page</a>
+
+    <a class="btn" href="{% url 'trainer_calendar' %}">
+        Manage Availability
+    </a>
+
+    <a class="btn btn-outline" href="{% url 'trainer_calendar' %}">
+        View Client Booking Page
+    </a>
   </div>
 
 </div>

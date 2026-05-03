@@ -45,7 +45,9 @@ urlpatterns = [
 
     # Member weekly availability calendar
     path("trainer/available/<int:year>/<int:week>/",views.trainer_available_calendar,name="trainer_available_calendar"),
-    path('sessions/available/', views.available_sessions, name='available_sessions'),
+    path("book/<int:slot_id>/", views.book_trainer_slot, name="book_trainer_slot"),
+    path("trainer/client/<int:user_id>/", views.trainer_view_client, name="trainer_view_client"),
+
 
 
 ]

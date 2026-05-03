@@ -12,12 +12,17 @@
 
     <div class="hero-actions">
       {% if user.is_authenticated %}
-        <a class="btn" href="{% url 'dashboard' %}">Go to Dashboard</a>
+        {% if user.is_staff %}
+          <a class="btn" href="{% url 'trainer_dashboard' %}">Go to Dashboard</a>
+        {% else %}
+          <a class="btn" href="{% url 'dashboard' %}">Go to Dashboard</a>
+        {% endif %}
       {% else %}
         <a class="btn" href="{% url 'login' %}">Login</a>
         <a class="btn btn-outline" href="{% url 'signup' %}">Create Account</a>
       {% endif %}
     </div>
+
 
     <div class="stats">
       <div class="stat">

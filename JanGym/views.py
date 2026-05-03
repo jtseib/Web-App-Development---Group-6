@@ -1,6 +1,9 @@
 import calendar
 from datetime import date, time
 import datetime
+import datetime
+from django.shortcuts import render
+from django.utils.timezone import now
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
@@ -8,7 +11,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import ListView, CreateView, UpdateView
-
+from .models import WorkoutInstance, MemberProfile
+from django.db.models import F, ExpressionWrapper, DateTimeField, TimeField, DateField
+from django.db.models.functions import Cast
 from .forms import GymHoursForm, UserUpdateForm, TrainerSelectForm
 from .models import (
     GymHours,
@@ -22,49 +27,47 @@ def index(request):
     return render(request, 'index.html')
 
 
-from django.utils import timezone
+
+
 
 from django.utils import timezone
-from .models import WorkoutInstance, MemberProfile
 
 def dashboard(request):
     user = request.user
 
-    # Ensure MemberProfile exists
-    try:
-        profile = user.memberprofile
-    except MemberProfile.DoesNotExist:
-        profile = None
-
+    # Member profile
+    profile = user.memberprofile
     trainer = profile.trainer if profile else None
 
-    # Query upcoming workout sessions
-    if profile:
-        upcoming_sessions = (
-            WorkoutInstance.objects
-            .filter(member=user, timeslot__start_time__gte=timezone.now())
-            .order_by("timeslot__start_time")
+    # Current datetime (timezone-aware)
+    now = timezone.now()
+
+    # Only sessions in the future (not earlier today)
+    upcoming_sessions = (
+        WorkoutInstance.objects
+        .filter(
+            member=user,
+            timeslot__start_time__gte=now
         )
-        next_session = upcoming_sessions.first()
-    else:
-        upcoming_sessions = []
-        next_session = None
+        .order_by("timeslot__start_time")
+    )
 
-    # Add current year + week for the booking calendar
-    today = timezone.now().date()
-    current_year = today.year
-    current_week = today.isocalendar().week
+    # First upcoming session
+    next_session = upcoming_sessions.first() if upcoming_sessions else None
 
-    return render(request, "dashboard.html", {
+    # Current week for "View Trainer Availability"
+    current_year = now.year
+    current_week = now.isocalendar().week
+
+    context = {
         "trainer": trainer,
         "next_session": next_session,
         "upcoming_sessions": upcoming_sessions,
         "current_year": current_year,
         "current_week": current_week,
-    })
+    }
 
-
-
+    return render(request, "dashboard.html", context)
 
 def client_sessions(request):
     sessions = WorkoutInstance.objects.all()
@@ -178,26 +181,48 @@ def signup(request):
     return render(request, 'registration/signup.html', {'form': form})
 
 
-def trainer_dashboard(request):
-    today = datetime.date.today()
-    now = datetime.datetime.now().time()
+from django.utils import timezone
+import datetime
 
-    # Get the next availability block
-    next_availability = (
-        TrainerAvailability.objects
-        .filter(
-            trainer=request.user,
-            date__gte=today
+def trainer_dashboard(request):
+    user = request.user
+    now = timezone.now()
+
+    # --- Upcoming booked sessions ---
+    upcoming_sessions = (
+        WorkoutInstance.objects
+        .filter(trainer=user, timeslot__start_time__gte=now)
+        .order_by("timeslot__start_time")
+    )
+    next_session = upcoming_sessions.first() if upcoming_sessions else None
+
+    # --- Trainer's next availability (Python-side filtering) ---
+    future_availability = []
+    for slot in TrainerAvailability.objects.filter(trainer=user).order_by("date", "start_time"):
+        start_dt = timezone.make_aware(
+            datetime.datetime.combine(slot.date, slot.start_time),
+            timezone.get_current_timezone()
         )
-        .order_by("date", "start_time")
-        .first()
+        if start_dt >= now:
+            future_availability.append((start_dt, slot))
+
+    next_availability = future_availability[0][1] if future_availability else None
+
+    # --- Clients assigned to this trainer ---
+    clients = (
+        MemberProfile.objects
+        .filter(trainer=user)
+        .values("user__username", "user__id")
     )
 
     context = {
-        "next_availability": next_availability
+        "upcoming_sessions": upcoming_sessions,
+        "next_session": next_session,
+        "next_availability": next_availability,
+        "clients": clients,
     }
 
-    return render(request, 'trainer_dashboard.html', context)
+    return render(request, "trainer_dashboard.html", context)
 
 
 
@@ -390,16 +415,52 @@ def client_available_sessions(request, year=None, week=None):
     })
 
 
+
+import datetime
+
+from django.utils.timezone import make_aware
+import datetime
+
+from django.utils import timezone
+import datetime
+from django.shortcuts import get_object_or_404, redirect
+
 def book_session(request, timeslot_id):
     user = request.user
 
     slot = get_object_or_404(TrainerAvailability, pk=timeslot_id)
 
+    # Convert date + time into timezone-aware datetimes using local timezone
+    local_tz = timezone.get_current_timezone()
+
+    start_dt = timezone.make_aware(
+        datetime.datetime.combine(slot.date, slot.start_time),
+        local_tz
+    )
+
+    end_dt = timezone.make_aware(
+        datetime.datetime.combine(slot.date, slot.end_time),
+        local_tz
+    )
+
+    # Create or reuse a TimeSlot
+    ts, created = TimeSlot.objects.get_or_create(
+        trainer=slot.trainer,
+        start_time=start_dt,
+        end_time=end_dt,
+        defaults={"is_available": False},
+    )
+
+    # If it already existed, mark unavailable
+    if not created:
+        ts.is_available = False
+        ts.save()
+
     # Create the workout session
     WorkoutInstance.objects.create(
         member=user,
         trainer=slot.trainer,
-        timeslot=None,
+        timeslot=ts,
         status="confirmed"
     )
 
@@ -407,7 +468,6 @@ def book_session(request, timeslot_id):
     slot.delete()
 
     return redirect("dashboard")
-
 
 def select_trainer(request):
     user = request.user
@@ -460,24 +520,45 @@ def trainer_available_sessions(request):
         "available_slots": available_slots,
     })
 
+from django.utils.timezone import make_aware
+
 def book_trainer_slot(request, slot_id):
-    user = request.user
+    slot = get_object_or_404(TrainerAvailability, id=slot_id)
 
-    slot = get_object_or_404(TrainerAvailability, pk=slot_id)
+    # GET → show confirmation page
+    if request.method == "GET":
+        return render(request, "book_session.html", {"slot": slot})
 
-    # Create workout session
-    WorkoutInstance.objects.create(
-        member=user,
-        trainer=slot.trainer,
-        timeslot=None,  # You are not using TimeSlot anymore
-        status="confirmed"
-    )
+    # POST → convert TrainerAvailability → TimeSlot
+    if request.method == "POST":
+        user = request.user
 
-    # Remove the availability slot so it cannot be double-booked
-    slot.delete()
+        # Combine date + time into timezone-aware datetimes
+        start_dt = make_aware(datetime.datetime.combine(slot.date, slot.start_time))
+        end_dt = make_aware(datetime.datetime.combine(slot.date, slot.end_time))
 
-    messages.success(request, "Session booked successfully!")
-    return redirect("dashboard")
+        # Create or reuse a TimeSlot
+        ts, created = TimeSlot.objects.get_or_create(
+            trainer=slot.trainer,
+            start_time=start_dt,
+            end_time=end_dt,
+            defaults={"is_available": False},
+        )
+
+        # Mark the slot unavailable if it was reused
+        if not created:
+            ts.is_available = False
+            ts.save()
+
+        # Create the WorkoutInstance
+        WorkoutInstance.objects.create(
+            member=user,
+            trainer=slot.trainer,
+            timeslot=ts,
+            status="confirmed",
+        )
+
+        return redirect("dashboard")
 
 
 def trainer_available_calendar(request, year=None, week=None):
@@ -531,3 +612,17 @@ def trainer_available_calendar(request, year=None, week=None):
     }
 
     return render(request, "trainer_available_calendar.html", context)
+
+def trainer_view_client(request, user_id):
+    trainer = request.user
+
+    # Make sure the trainer is allowed to view this client
+    client_profile = get_object_or_404(MemberProfile, user__id=user_id, trainer=trainer)
+
+    context = {
+        "client": client_profile,
+        "client_user": client_profile.user,
+    }
+
+    return render(request, "trainer_view_client.html", context)
+
