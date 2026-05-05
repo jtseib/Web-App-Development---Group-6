@@ -15,7 +15,7 @@ class ll_ATS(unittest.TestCase):
     def test_ll(self):
         driver = self.driver
         driver.maximize_window()
-        user = "mem1"
+        user = "tra1"
         pwd = "qwertyuiopASDFGHJKL"
         driver.get("http://127.0.0.1:8000/")
         time.sleep(3)
@@ -33,7 +33,7 @@ class ll_ATS(unittest.TestCase):
 
         time.sleep(5)
         try:
-            elements = driver.find_elements(By.XPATH, "//button[normalize-space()='Change Trainer']")
+            elements = driver.find_elements(By.XPATH, "//button[normalize-space()='Manage Availability']")
 
         except NoSuchElementException:
             driver.close()

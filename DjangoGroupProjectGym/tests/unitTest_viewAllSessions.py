@@ -29,11 +29,12 @@ class ll_ATS(unittest.TestCase):
         time.sleep(3)
 
         driver.find_element(By.XPATH, "//a[contains(., 'Dashboard')]").click()
+        driver.find_element(By.XPATH, "//a[contains(., 'View All Sessions')]").click()
 
 
         time.sleep(5)
         try:
-            elements = driver.find_elements(By.XPATH, "//button[normalize-space()='Change Trainer']")
+            elements = driver.find_elements(By.XPATH, "//button[normalize-space()='Reschedule']")
 
         except NoSuchElementException:
             driver.close()
