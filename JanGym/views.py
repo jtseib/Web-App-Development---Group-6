@@ -667,6 +667,7 @@ def cancel_session(request, session_id):
     messages.success(request, "Your session has been canceled.")
     return redirect("dashboard")
 
-
+def FAQ(request):
+    return render(request, 'faq.html')
 
 

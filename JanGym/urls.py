@@ -49,5 +49,6 @@ urlpatterns = [
     path("trainer/client/<int:user_id>/", views.trainer_view_client, name="trainer_view_client"),
 
     path("session/<uuid:session_id>/cancel/", views.cancel_session, name="cancel_session"),
+    path('FAQ', views.FAQ, name='FAQ'),
 
 ]
